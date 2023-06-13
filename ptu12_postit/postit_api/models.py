@@ -79,7 +79,7 @@ class PostLike(models.Model):
         return f"{self.post.title} {_('liked by')} {self.user}"
 
     def get_absolute_url(self):
-        return reverse("PostLike_detail", kwargs={"pk": self.pk})
+        return reverse("postlike_detail", kwargs={"pk": self.pk})
 
 
 class CommentLike(models.Model):
