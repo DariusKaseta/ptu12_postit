@@ -16,7 +16,11 @@ class Post(models.Model):
         on_delete=models.CASCADE,
         related_name='posts',
     )
-    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+    created_at = models.DateTimeField(
+        _("created at"), 
+        auto_now_add=True, 
+        db_index=True,
+    )
 
     class Meta:
         ordering = ['-created_at']
@@ -44,9 +48,14 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='comments',
     )
-    created_at = models.DateTimeField(_("created at"), auto_now_add=True)
+    created_at = models.DateTimeField(
+        _("created at"), 
+        auto_now_add=True, 
+        db_index=True,
+    )
 
     class Meta:
+        ordering = ['created_at']
         verbose_name = _("comment")
         verbose_name_plural = _("comments")
 
