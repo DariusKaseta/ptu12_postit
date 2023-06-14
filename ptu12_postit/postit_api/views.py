@@ -72,4 +72,4 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
         except Exception as e:
             raise ValidationError(_('You cannot delete this.'))
         else:
-            return self.delete(request, *args, **kwargs)
+            return self.destroy(request, *args, **kwargs)
