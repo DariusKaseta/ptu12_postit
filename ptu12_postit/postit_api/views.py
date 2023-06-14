@@ -37,3 +37,39 @@ class PostDetail(generics.RetrieveUpdateDestroyAPIView):
             return self.destroy(request, *args, **kwargs)
         else:
             raise ValidationError(_('You have no rights to delete this.'))
+
+
+class CommentList(generics.ListCreateAPIView):
+    # queryset = models.Comment.objects.all()
+    serializer_class = serializers.CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        post = models.Post.objects.get(pk=self.kwargs['post_pk'])
+        serializer.save(user=self.request.user, post=post)
+
+    def get_queryset(self):
+        post = models.Post.objects.get(pk=self.kwargs['post_pk'])
+        return models.Comment.objects.filter(post=post)
+
+
+class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.Comment.objects.all()
+    serializer_class = serializers.CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
+    def put(self, request, *args, **kwargs):
+        try:
+            comment = models.Comment.objects.get(pk=kwargs['pk'], user=request.user)
+        except Exception as e:
+            raise ValidationError(_('You cannot update this.'))
+        else:
+            return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            comment = models.Comment.objects.get(pk=kwargs['pk'], user=request.user)
+        except Exception as e:
+            raise ValidationError(_('You cannot delete this.'))
+        else:
+            return self.delete(request, *args, **kwargs)
