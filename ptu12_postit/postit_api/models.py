@@ -10,6 +10,11 @@ User = get_user_model()
 class Post(models.Model):
     title = models.CharField(_("title"), max_length=250)
     body = models.TextField(_("body"), max_length=10000)
+    picture = models.ImageField(
+        _("picture"), 
+        upload_to='posts/pictures',
+        null=True, blank=True,
+    )
     user = models.ForeignKey(
         User, 
         verbose_name=_("user"), 
