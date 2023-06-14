@@ -1,6 +1,7 @@
 from django.utils.translation import gettext_lazy as _
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, mixins, status
 from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
 from . import models, serializers
 
 
@@ -73,3 +74,47 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
             raise ValidationError(_('You cannot delete this.'))
         else:
             return self.destroy(request, *args, **kwargs)
+
+
+class PostLikeCreateDestroy(generics.CreateAPIView, mixins.DestroyModelMixin):
+    serializer_class = serializers.PostLikeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        post = models.Post.objects.get(pk=self.kwargs['pk'])
+        return models.PostLike.objects.filter(user=self.request.user, post=post)
+    
+    def perform_create(self, serializer):
+        if self.get_queryset().exists():
+            raise ValidationError(_('You already like this.'))
+        post = models.Post.objects.get(pk=self.kwargs['pk'])
+        serializer.save(user=self.request.user, post=post)
+
+    def delete(self, request, *args, **kwargs):
+        if self.get_queryset().exists():
+            self.get_queryset().delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            raise ValidationError(_('You cannot unlike what you don\'t like'))
+
+
+class CommentLikeCreateDestroy(generics.CreateAPIView, mixins.DestroyModelMixin):
+    serializer_class = serializers.CommentLikeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        comment = models.Comment.objects.get(pk=self.kwargs['pk'])
+        return models.CommentLike.objects.filter(user=self.request.user, comment=comment)
+
+    def perform_create(self, serializer):
+        if self.get_queryset().exists():
+            raise ValidationError(_('You already like this.'))
+        comment = models.Comment.objects.get(pk=self.kwargs['pk'])
+        serializer.save(user=self.request.user, comment=comment)
+
+    def delete(self, request, *args, **kwargs):
+        if self.get_queryset().exists():
+            self.get_queryset().delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            raise ValidationError(_('You cannot unlike what you don\'t like'))
