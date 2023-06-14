@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'postit_api',
+    'user_api',
     'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
